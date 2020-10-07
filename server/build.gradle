@@ -1,0 +1,20 @@
+apply plugin: 'application'
+
+sourceCompatibility = 8.0
+mainClassName = 'pixelmoba.server.ServerLauncher'
+eclipse.project.name = appName + '-server'
+
+dependencies {
+	api project(':shared')
+	api "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+	api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
+jar {
+	archiveFileName = "${appName}-server-${archiveVersion.get()}.jar"
+	dependsOn configurations.runtimeClasspath
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } } 
+	manifest {
+		attributes 'Main-Class': project.mainClassName
+	}
+}
