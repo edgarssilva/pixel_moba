@@ -1,38 +1,36 @@
 package pixelmoba.listeners;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.core.PooledEngine;
+import com.artemis.*;
+import com.artemis.utils.IntBag;
 import com.esotericsoftware.kryonet.Connection;
 import pixelmoba.components.NetworkComponent;
 import pixelmoba.shared.dto.PlayerDisconnectDto;
 import pixelmoba.shared.listeners.AbstractListener;
 
-import java.util.Iterator;
-
 public class DisconnectListener extends AbstractListener<PlayerDisconnectDto> {
 
-    private final PooledEngine engine;
+    private final World world;
+    private final EntitySubscription subscription;
 
-    protected ComponentMapper<NetworkComponent> networkCompMap = ComponentMapper.getFor(NetworkComponent.class);
+    protected BaseComponentMapper<NetworkComponent> networkCompMap;
 
-    public DisconnectListener(PooledEngine engine) {
+    public DisconnectListener(World world) {
         super(PlayerDisconnectDto.class);
-        this.engine = engine;
+        this.world = world;
+        subscription = world.getAspectSubscriptionManager().get(Aspect.all(NetworkComponent.class));
+        networkCompMap = ComponentMapper.getFor(NetworkComponent.class, world);
     }
 
     @Override
     public void trigger(Connection connection, PlayerDisconnectDto object) {
-        Iterator<Entity> iterator = engine.getEntitiesFor(Family.all(NetworkComponent.class).get()).iterator();
-
-        Entity entity;
-        while (iterator.hasNext()) {
-            entity = iterator.next();
+        IntBag entities = subscription.getEntities();
+        int[] ids = entities.getData();
+        for (int i = 0, s = entities.size(); s > i; i++) {
+            int entity = ids[i];
             NetworkComponent netComp = networkCompMap.get(entity);
 
             if (netComp.id == object.id) {
-                engine.removeEntity(entity);
+                world.delete(entity);
                 return;
             }
         }

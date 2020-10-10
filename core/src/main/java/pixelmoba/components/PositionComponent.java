@@ -1,10 +1,9 @@
 package pixelmoba.components;
 
-import com.badlogic.ashley.core.Component;
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Pool;
 
-public class PositionComponent implements Component, Pool.Poolable {
+public class PositionComponent extends PooledComponent {
     public Vector2 pos = new Vector2();
 
     @Override

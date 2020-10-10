@@ -1,6 +1,6 @@
 package pixelmoba.listeners;
 
-import com.badlogic.ashley.core.PooledEngine;
+import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import pixelmoba.factories.EntitiesFactory;
@@ -9,16 +9,16 @@ import pixelmoba.shared.listeners.AbstractListener;
 
 public class JoinedListener extends AbstractListener<PlayerJoinedDto> {
 
-    private final PooledEngine engine;
+    private final World world;
 
-    public JoinedListener(PooledEngine engine) {
+    public JoinedListener(World world) {
         super(PlayerJoinedDto.class);
-        this.engine = engine;
+        this.world = world;
     }
 
     @Override
     public void trigger(Connection connection, PlayerJoinedDto object) {
-        Gdx.app.postRunnable(() -> EntitiesFactory.createNetworkPlayer(engine, object.id, object.pos, false));
+        Gdx.app.postRunnable(() -> EntitiesFactory.createNetworkPlayer(world, object.id, object.pos, false));
     }
 }
 

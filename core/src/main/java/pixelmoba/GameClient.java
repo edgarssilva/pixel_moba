@@ -1,9 +1,7 @@
 package pixelmoba;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.core.PooledEngine;
+import com.artemis.*;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL30;
@@ -18,18 +16,24 @@ import pixelmoba.shared.dto.PlayerDisconnectDto;
 import pixelmoba.systems.RenderSystem;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 public class GameClient extends ApplicationAdapter {
 
-    private PooledEngine engine;
+    private World world;
     private Client client;
-    protected ComponentMapper<NetworkComponent> networkCompMap = ComponentMapper.getFor(NetworkComponent.class);
+    private EntitySubscription subscription;
+
+    protected BaseComponentMapper<NetworkComponent> networkCompMap;
 
     @Override
     public void create() {
-        engine = new PooledEngine();
-        engine.addSystem(new RenderSystem());
+        world = new World(new WorldConfigurationBuilder()
+                .with(new RenderSystem())
+                .build()
+        );
+
+        subscription = world.getAspectSubscriptionManager().get(Aspect.all(NetworkComponent.class));
+        networkCompMap = ComponentMapper.getFor(NetworkComponent.class, world);
 
         client = new Client();
         client.getKryo().setRegistrationRequired(false); //Don't throw up when sending non registered classes
@@ -39,9 +43,9 @@ public class GameClient extends ApplicationAdapter {
 
         //Connect
         //Add Listeners
-        client.addListener(new ConnectionListener(engine));
-        client.addListener(new JoinedListener(engine));
-        client.addListener(new DisconnectListener(engine));
+        client.addListener(new ConnectionListener(world));
+        client.addListener(new JoinedListener(world));
+        client.addListener(new DisconnectListener(world));
         client.start();
 
         try {
@@ -64,7 +68,8 @@ public class GameClient extends ApplicationAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
-        engine.update(Gdx.graphics.getDeltaTime());
+        world.setDelta(Gdx.graphics.getDeltaTime());
+        world.process();
     }
 
     @Override
@@ -80,15 +85,12 @@ public class GameClient extends ApplicationAdapter {
     @Override
     public void dispose() {
         super.dispose();
-        //Set a disconnect for all the players the client owns (Just 1 tbh)
-        Iterator<Entity> iterator = engine.getEntitiesFor(Family.all(NetworkComponent.class).get()).iterator();
-
-        Entity entity;
-        while (iterator.hasNext()) {
-            entity = iterator.next();
+        IntBag entities = subscription.getEntities();
+        int[] ids = entities.getData();
+        for (int i = 0, s = entities.size(); s > i; i++) {
+            int entity = ids[i];
             NetworkComponent netComp = networkCompMap.get(entity);
             if (netComp.owner) client.sendTCP(new PlayerDisconnectDto(netComp.id));
-
         }
     }
 }

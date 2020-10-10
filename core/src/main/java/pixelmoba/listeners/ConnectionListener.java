@@ -1,6 +1,6 @@
 package pixelmoba.listeners;
 
-import com.badlogic.ashley.core.PooledEngine;
+import com.artemis.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
@@ -12,23 +12,23 @@ import java.util.Map;
 
 public class ConnectionListener extends AbstractListener<PlayerConnectionDto> {
 
-    private final PooledEngine engine;
+    private final World world;
 
-    public ConnectionListener(PooledEngine engine) {
+    public ConnectionListener(World world) {
         super(PlayerConnectionDto.class);
-        this.engine = engine;
+        this.world = world;
     }
 
     @Override
     public void trigger(Connection connection, PlayerConnectionDto object) {
         Gdx.app.postRunnable(() -> {
             System.out.println(object.pos.toString());
-            EntitiesFactory.createNetworkPlayer(engine, object.id, object.pos, true);
+            EntitiesFactory.createNetworkPlayer(world, object.id, object.pos, true);
             for (Map.Entry<Long, Vector2> entry : object.players.entrySet()) {
                 long id = entry.getKey();
                 Vector2 pos = entry.getValue();
 
-                EntitiesFactory.createNetworkPlayer(engine, id, pos, false);
+                EntitiesFactory.createNetworkPlayer(world, id, pos, false);
             }
         });
     }

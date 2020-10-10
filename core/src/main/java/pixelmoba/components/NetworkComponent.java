@@ -1,9 +1,8 @@
 package pixelmoba.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.PooledComponent;
 
-public class NetworkComponent implements Component, Pool.Poolable {
+public class NetworkComponent extends PooledComponent {
     public long id = -1;
     public boolean owner = false;
 
