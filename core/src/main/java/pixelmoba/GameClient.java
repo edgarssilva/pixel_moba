@@ -32,8 +32,8 @@ public class GameClient extends ApplicationAdapter {
                 .build()
         );
 
+        networkCompMap = world.getMapper(NetworkComponent.class);
         subscription = world.getAspectSubscriptionManager().get(Aspect.all(NetworkComponent.class));
-        networkCompMap = ComponentMapper.getFor(NetworkComponent.class, world);
 
         client = new Client();
         client.getKryo().setRegistrationRequired(false); //Don't throw up when sending non registered classes

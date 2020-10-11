@@ -1,10 +1,12 @@
 package pixelmoba.shared;
 
+import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 import pixelmoba.shared.dto.PlayerConnectionDto;
 import pixelmoba.shared.dto.PlayerDisconnectDto;
 import pixelmoba.shared.dto.PlayerJoinedDto;
+import pixelmoba.shared.dto.PlayersPositionsDto;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -23,9 +25,13 @@ public class Network {
 
     public static void register(EndPoint endPoint) {
         Kryo kryo = endPoint.getKryo();
+
+        kryo.register(Vector2.class);
+
         kryo.register(PlayerConnectionDto.class);
         kryo.register(PlayerJoinedDto.class);
         kryo.register(PlayerDisconnectDto.class);
+        kryo.register(PlayersPositionsDto.class);
     }
 
 }

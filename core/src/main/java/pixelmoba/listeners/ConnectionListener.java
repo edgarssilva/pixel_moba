@@ -24,6 +24,7 @@ public class ConnectionListener extends AbstractListener<PlayerConnectionDto> {
         Gdx.app.postRunnable(() -> {
             System.out.println(object.pos.toString());
             EntitiesFactory.createNetworkPlayer(world, object.id, object.pos, true);
+            if(object.players == null) return;
             for (Map.Entry<Long, Vector2> entry : object.players.entrySet()) {
                 long id = entry.getKey();
                 Vector2 pos = entry.getValue();

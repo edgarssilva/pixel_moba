@@ -2,9 +2,10 @@ package pixelmoba.shared.listeners;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import net.mostlyoriginal.api.system.core.PassiveSystem;
 import pixelmoba.shared.dto.Dto;
 
-public abstract class AbstractListener<T extends Dto> implements Listener {
+public abstract class AbstractListener<T extends Dto> extends PassiveSystem implements Listener {
 
     private final Class<T> lClass;
 

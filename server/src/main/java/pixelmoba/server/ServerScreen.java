@@ -1,39 +1,53 @@
 package pixelmoba.server;
 
+import com.artemis.World;
+import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryonet.Server;
+import net.mostlyoriginal.api.SingletonPlugin;
 import pixelmoba.server.listeners.PlayerConnectionListener;
 import pixelmoba.server.listeners.PlayerDisconnectListener;
-import pixelmoba.shared.Network;
+import pixelmoba.server.systems.NetworkStateSystem;
+import pixelmoba.shared.listeners.AbstractListener;
 
 public class ServerScreen extends ScreenAdapter {
 
     private final Server server;
-    private final ServerState serverState;
-    private float tick_timer = 0f;
+    private World world;
 
     public ServerScreen(Server server) {
         this.server = server;
-        this.serverState = new ServerState();
     }
 
     @Override
     public void show() {
-        //Add Server Listeners here
-        server.addListener(new PlayerConnectionListener(server, serverState));
-        server.addListener(new PlayerDisconnectListener(server, serverState));
+        //TODO: Figure out if the listener should be passive systems (need access to singleton components)
+        Array<AbstractListener> listeners = new Array<>();
+
+        listeners.add(new PlayerConnectionListener(server, world));
+        listeners.add(new PlayerDisconnectListener(server, world));
+
+        WorldConfigurationBuilder worldConfig = new WorldConfigurationBuilder();
+
+        for (AbstractListener listener : listeners) {
+            worldConfig.with(listener);
+            server.addListener(listener);
+        }
+
+        world = new World(worldConfig
+                .dependsOn(SingletonPlugin.class)
+                .with(new NetworkStateSystem(server))
+                .build()
+        );
+
     }
 
     @Override
     public void render(float delta) {
         //Update Server logic here
-
-        if (tick_timer >= Network.TICK_RATE) {
-            tick_timer = 0;
-            //Send game state to clients
-        } else tick_timer += delta;
-
-        /*        System.out.println(Gdx.graphics.getFramesPerSecond());*/
+        world.setDelta(delta);
+        world.process();
     }
 
     @Override
@@ -44,5 +58,6 @@ public class ServerScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         super.dispose();
+        world.dispose();
     }
 }
