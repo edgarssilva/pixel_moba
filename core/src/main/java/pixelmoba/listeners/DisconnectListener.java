@@ -13,13 +13,17 @@ import pixelmoba.shared.listeners.AbstractListener;
 public class DisconnectListener extends AbstractListener<PlayerDisconnectDto> {
 
     private final World world;
-    private final EntitySubscription subscription;
+    private EntitySubscription subscription;
 
     protected ComponentMapper<NetworkComponent> networkCompMap;
 
     public DisconnectListener(World world) {
         super(PlayerDisconnectDto.class);
         this.world = world;
+    }
+
+    @Override
+    protected void initialize() {
         networkCompMap = world.getMapper(NetworkComponent.class);
         subscription = world.getAspectSubscriptionManager().get(Aspect.all(NetworkComponent.class));
     }

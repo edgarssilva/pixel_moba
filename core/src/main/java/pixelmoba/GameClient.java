@@ -5,14 +5,19 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryonet.Client;
+import net.mostlyoriginal.api.SingletonPlugin;
 import pixelmoba.components.NetworkComponent;
 import pixelmoba.listeners.ConnectionListener;
 import pixelmoba.listeners.DisconnectListener;
 import pixelmoba.listeners.JoinedListener;
+import pixelmoba.listeners.NetworkStateListener;
 import pixelmoba.shared.Network;
 import pixelmoba.shared.dto.PlayerConnectionDto;
 import pixelmoba.shared.dto.PlayerDisconnectDto;
+import pixelmoba.shared.listeners.AbstractListener;
+import pixelmoba.systems.PositionSystem;
 import pixelmoba.systems.RenderSystem;
 
 import java.io.IOException;
@@ -27,13 +32,7 @@ public class GameClient extends ApplicationAdapter {
 
     @Override
     public void create() {
-        world = new World(new WorldConfigurationBuilder()
-                .with(new RenderSystem())
-                .build()
-        );
 
-        networkCompMap = world.getMapper(NetworkComponent.class);
-        subscription = world.getAspectSubscriptionManager().get(Aspect.all(NetworkComponent.class));
 
         client = new Client();
         client.getKryo().setRegistrationRequired(false); //Don't throw up when sending non registered classes
@@ -42,10 +41,27 @@ public class GameClient extends ApplicationAdapter {
         Network.register(client);
 
         //Connect
-        //Add Listeners
-        client.addListener(new ConnectionListener(world));
-        client.addListener(new JoinedListener(world));
-        client.addListener(new DisconnectListener(world));
+        //TODO: Figure out if the listener should be passive systems (need access to singleton components)
+        Array<AbstractListener> listeners = new Array<>();
+
+        listeners.add(new ConnectionListener(world));
+        listeners.add(new JoinedListener(world));
+        listeners.add(new DisconnectListener(world));
+        listeners.add(new NetworkStateListener());
+
+        WorldConfigurationBuilder worldConfig = new WorldConfigurationBuilder();
+
+        worldConfig
+                .dependsOn(SingletonPlugin.class)
+                .with(new RenderSystem())
+                .with(new PositionSystem())
+        ;
+
+        for (AbstractListener listener : listeners) {
+            worldConfig.with(listener);
+            client.addListener(listener);
+        }
+
         client.start();
 
         try {
@@ -55,6 +71,11 @@ public class GameClient extends ApplicationAdapter {
             ioException.printStackTrace();
             System.exit(1);
         }
+
+        world = new World(worldConfig.build());
+
+        networkCompMap = world.getMapper(NetworkComponent.class);
+        subscription = world.getAspectSubscriptionManager().get(Aspect.all(NetworkComponent.class));
     }
 
     @Override
