@@ -5,7 +5,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.systems.IntervalIteratingSystem;
 import com.esotericsoftware.kryonet.Server;
 import pixelmoba.server.components.PlayerComponent;
-import pixelmoba.server.components.PositionComponent;
+import pixelmoba.server.components.TransformComponent;
 import pixelmoba.server.components.singleton.PlayerPositionsSingleton;
 import pixelmoba.shared.Network;
 
@@ -16,13 +16,12 @@ public class NetworkStateSystem extends IntervalIteratingSystem {
     private Server server;
 
     protected ComponentMapper<PlayerComponent> playerComponentMap;
-    protected ComponentMapper<PositionComponent> positionComponentMap;
+    protected ComponentMapper<TransformComponent> positionComponentMap;
 
     public NetworkStateSystem(Server server) {
         super(Aspect.all(PlayerComponent.class), Network.TICK_RATE);
         this.server = server;
     }
-
 
     @Override
     protected void begin() {
@@ -32,7 +31,7 @@ public class NetworkStateSystem extends IntervalIteratingSystem {
     @Override
     protected void process(int entityId) {
         PlayerComponent pComp = playerComponentMap.get(entityId);
-        PositionComponent posComp = positionComponentMap.get(entityId);
+        TransformComponent posComp = positionComponentMap.get(entityId);
         playerPos.dto.players.put(pComp.id, posComp.pos.cpy());
     }
 

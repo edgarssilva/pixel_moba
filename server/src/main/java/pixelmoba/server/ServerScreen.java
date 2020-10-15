@@ -9,6 +9,9 @@ import net.mostlyoriginal.api.SingletonPlugin;
 import pixelmoba.server.listeners.PlayerConnectionListener;
 import pixelmoba.server.listeners.PlayerDisconnectListener;
 import pixelmoba.server.systems.NetworkStateSystem;
+import pixelmoba.server.systems.PlayersInputSystem;
+import pixelmoba.server.systems.TempSystem;
+import pixelmoba.server.systems.TransformSystem;
 import pixelmoba.shared.listeners.AbstractListener;
 
 public class ServerScreen extends ScreenAdapter {
@@ -38,6 +41,9 @@ public class ServerScreen extends ScreenAdapter {
         world = new World(worldConfig
                 .dependsOn(SingletonPlugin.class)
                 .with(new NetworkStateSystem(server))
+                .with(new PlayersInputSystem())
+                .with(new TransformSystem())
+                .with(new TempSystem())
                 .build()
         );
 
