@@ -1,38 +1,36 @@
 package pixelmoba.shared;
 
-import com.badlogic.gdx.math.Vector2;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryonet.EndPoint;
-import pixelmoba.shared.dto.PlayerConnectionDto;
-import pixelmoba.shared.dto.PlayerDisconnectDto;
-import pixelmoba.shared.dto.PlayerJoinedDto;
-import pixelmoba.shared.dto.PlayersPositionsDto;
-
-import java.util.concurrent.atomic.AtomicLong;
-
-
 public class Network {
+    private int timeout;
+    private int tcpPort;
+    private int udpPort;
+    private String host;
 
-    public static final int TIMEOUT = 15000;
-    public static final int TCP_PORT = 5455;
-    public static final int UDP_PORT = 5477;
-    public static final String HOST = "127.0.0.1";
+    public Network() {
 
-    public static final float TICK_RATE = 1f / 30f; // 1s / 30 frames = 30fps
-    public static final float SERVER_FPS = 1f / 120f;
-
-    public static final AtomicLong COUNTER = new AtomicLong(0);
-
-    public static void register(EndPoint endPoint) {
-        Kryo kryo = endPoint.getKryo();
-
-        kryo.register(Vector2.class);
-
-        kryo.register(PlayerConnectionDto.class);
-        kryo.register(PlayerJoinedDto.class);
-        kryo.register(PlayerDisconnectDto.class);
-        kryo.register(PlayersPositionsDto.class);
     }
 
+    public Network(int timeout, int tcpPort, int udpPort, String host) {
+        this.timeout = timeout;
+        this.tcpPort = tcpPort;
+        this.udpPort = udpPort;
+        this.host = host;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public int getTcpPort() {
+        return tcpPort;
+    }
+
+    public int getUdpPort() {
+        return udpPort;
+    }
+
+    public String getHost() {
+        return host;
+    }
 }
 

@@ -3,12 +3,9 @@ package pixelmoba.systems;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
-import com.badlogic.gdx.math.Vector2;
 import pixelmoba.components.NetworkComponent;
-import pixelmoba.components.PositionComponent;
 import pixelmoba.components.singletons.NetworkStateSingleton;
-
-import java.util.Map;
+import pixelmoba.shared.components.PositionComponent;
 
 @All(PositionComponent.class)
 public class PositionSystem extends IteratingSystem {
@@ -25,13 +22,13 @@ public class PositionSystem extends IteratingSystem {
 
         NetworkComponent netComp = networkComponentMap.get(entityId);
 
-        for (Map.Entry<Long, Vector2> player : netState.playerPos.players.entrySet()) {
+       /* for (Map.Entry<Long, Vector2> player : netState.playerPos.players.entrySet()) {
             if (netComp.id != player.getKey()) continue;
 
             PositionComponent posComp = positionComponentMap.get(entityId);
 
             posComp.pos = player.getValue().cpy();
-        }
+        }*/
     }
 
     @Override

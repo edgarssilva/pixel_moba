@@ -1,4 +1,5 @@
-package pixelmoba.components;
+package pixelmoba.shared.components;
+
 
 import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Vector2;

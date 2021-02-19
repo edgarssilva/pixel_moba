@@ -1,34 +1,64 @@
 package pixelmoba.server;
 
-import com.badlogic.gdx.Game;
-import com.esotericsoftware.kryonet.Server;
-import pixelmoba.shared.Network;
+import com.artemis.World;
+import com.artemis.WorldConfigurationBuilder;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
+import net.mostlyoriginal.api.SingletonPlugin;
+import pixelmoba.server.systems.NetworkSystem;
+import pixelmoba.server.systems.RequestProcessor;
 
-import java.io.IOException;
+public class GameServer implements ApplicationListener {
+    private World world;
 
-public class GameServer extends Game {
-    private final Server server;
-    private final ServerScreen serverScreen;
+    private final ServerStrategy strategy;
+    private final ServerConfiguration config;
 
-    public GameServer() {
-        server = new Server();
-        Network.register(server);
-
-        server.getKryo().setRegistrationRequired(false); //Don't throw up when sending non registered classes
-        server.getKryo().setWarnUnregisteredClasses(true); //Instead just give an warning
-
-        serverScreen = new ServerScreen(server);
+    public GameServer(ServerConfiguration config) {
+        this.config = config;
+        strategy = new ServerStrategy(config);
     }
 
     @Override
     public void create() {
-        try {
-            server.bind(Network.TCP_PORT, Network.UDP_PORT);
-            server.start();
-            setScreen(serverScreen);
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-            System.exit(1);
-        }
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+        WorldConfigurationBuilder worldConfig = new WorldConfigurationBuilder();
+        world = new World(worldConfig
+                .dependsOn(SingletonPlugin.class)
+                .with(new NetworkSystem(strategy))
+                .with(new RequestProcessor())
+                .build()
+        );
+
+        Gdx.app.log("Server initialization", "Server OK");
+    }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void render() {
+        world.setDelta(Gdx.graphics.getDeltaTime());
+        world.process();
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void dispose() {
+        world.dispose();
+        Gdx.app.exit();
     }
 }

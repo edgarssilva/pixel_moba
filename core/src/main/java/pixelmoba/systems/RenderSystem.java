@@ -3,9 +3,10 @@ package pixelmoba.systems;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import pixelmoba.components.PositionComponent;
 import pixelmoba.components.TextureComponent;
+import pixelmoba.shared.components.PositionComponent;
 
 @All({PositionComponent.class, TextureComponent.class})
 public class RenderSystem extends IteratingSystem {
@@ -14,9 +15,11 @@ public class RenderSystem extends IteratingSystem {
     protected ComponentMapper<TextureComponent> textureCompMap;
 
     private final SpriteBatch batch;
+    private final OrthographicCamera camera;
 
-    public RenderSystem() {
-        batch = new SpriteBatch();
+    public RenderSystem(OrthographicCamera camera, SpriteBatch batch) {
+        this.camera = camera;
+        this.batch = batch;
     }
 
     @Override
@@ -29,7 +32,7 @@ public class RenderSystem extends IteratingSystem {
         PositionComponent posComp = posCompMap.get(entityId);
         TextureComponent textureComp = textureCompMap.get(entityId);
 
-        batch.draw(textureComp.texture, posComp.pos.x, posComp.pos.y);
+        batch.draw(textureComp.texture, posComp.pos.x, posComp.pos.y, textureComp.texture.getWidth() / 2f, textureComp.texture.getHeight() / 2f);
     }
 
     @Override
@@ -39,6 +42,6 @@ public class RenderSystem extends IteratingSystem {
 
     @Override
     protected void dispose() {
-        batch.dispose();
+        /*  batch.dispose();*/
     }
 }

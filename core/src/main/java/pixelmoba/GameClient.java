@@ -1,86 +1,56 @@
 package pixelmoba;
 
-import com.artemis.*;
-import com.artemis.utils.IntBag;
+import com.artemis.World;
+import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL30;
-import com.badlogic.gdx.utils.Array;
-import com.esotericsoftware.kryonet.Client;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import net.mostlyoriginal.api.SingletonPlugin;
-import pixelmoba.components.NetworkComponent;
-import pixelmoba.listeners.ConnectionListener;
-import pixelmoba.listeners.DisconnectListener;
-import pixelmoba.listeners.JoinedListener;
-import pixelmoba.listeners.NetworkStateListener;
-import pixelmoba.shared.Network;
-import pixelmoba.shared.dto.PlayerConnectionDto;
-import pixelmoba.shared.dto.PlayerDisconnectDto;
-import pixelmoba.shared.listeners.AbstractListener;
+import pixelmoba.shared.Constants;
+import pixelmoba.systems.InputSystem;
+import pixelmoba.systems.NetworkSystem;
 import pixelmoba.systems.PositionSystem;
 import pixelmoba.systems.RenderSystem;
-
-import java.io.IOException;
 
 public class GameClient extends ApplicationAdapter {
 
     private World world;
-    private Client client;
-    private EntitySubscription subscription;
+    private SpriteBatch batch;
+    private OrthographicCamera camera;
 
-    protected BaseComponentMapper<NetworkComponent> networkCompMap;
+    private final ClientConfiguration clientConfig;
+
+    public GameClient(ClientConfiguration clientConfig) {
+        this.clientConfig = clientConfig;
+    }
 
     @Override
     public void create() {
-
-
-        client = new Client();
-        client.getKryo().setRegistrationRequired(false); //Don't throw up when sending non registered classes
-        client.getKryo().setWarnUnregisteredClasses(true); //Instead just give an warning
-
-        Network.register(client);
-
-        //Connect
-        //TODO: Figure out if the listener should be passive systems (need access to singleton components)
-        Array<AbstractListener> listeners = new Array<>();
-
-        listeners.add(new ConnectionListener(world));
-        listeners.add(new JoinedListener(world));
-        listeners.add(new DisconnectListener(world));
-        listeners.add(new NetworkStateListener());
-
         WorldConfigurationBuilder worldConfig = new WorldConfigurationBuilder();
+
+        batch = new SpriteBatch();
+        camera = new OrthographicCamera(Constants.VIRTUAL_WIDTH, Constants.VIRTUAL_HEIGHT);
+        camera.position.set(Constants.VIRTUAL_WIDTH / 2f, Constants.VIRTUAL_HEIGHT / 2f, 0);
 
         worldConfig
                 .dependsOn(SingletonPlugin.class)
-                .with(new RenderSystem())
+                .with(new NetworkSystem(clientConfig))
+                .with(new InputSystem(camera)) //Passive System
+                .with(new RenderSystem(camera, batch))
                 .with(new PositionSystem())
         ;
 
-        for (AbstractListener listener : listeners) {
-            worldConfig.with(listener);
-            client.addListener(listener);
-        }
-
-        client.start();
-
-        try {
-            client.connect(Network.TIMEOUT, Network.HOST, Network.TCP_PORT, Network.UDP_PORT);
-            client.sendTCP(new PlayerConnectionDto());
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-            System.exit(1);
-        }
-
         world = new World(worldConfig.build());
-
-        networkCompMap = world.getMapper(NetworkComponent.class);
-        subscription = world.getAspectSubscriptionManager().get(Aspect.all(NetworkComponent.class));
     }
 
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        camera.update();
     }
 
     @Override
@@ -106,12 +76,6 @@ public class GameClient extends ApplicationAdapter {
     @Override
     public void dispose() {
         super.dispose();
-        IntBag entities = subscription.getEntities();
-        int[] ids = entities.getData();
-        for (int i = 0, s = entities.size(); s > i; i++) {
-            int entity = ids[i];
-            NetworkComponent netComp = networkCompMap.get(entity);
-            if (netComp.owner) client.sendTCP(new PlayerDisconnectDto(netComp.id));
-        }
+        batch.dispose();
     }
 }

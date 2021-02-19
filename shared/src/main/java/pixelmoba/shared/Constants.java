@@ -53,13 +53,15 @@ public class Constants {
             return type;
         }
 
-        public int getKeyBinding(){
+        public int getKeyBinding() {
             return keyBinding.getKey(this, true);
         }
     }
 
-    public static final int VIRTUAL_WIDTH = /*1280*/ 640;
-    public static final int VIRTUAL_HEIGHT = /*720*/ 360;
+    public static final int VIRTUAL_WIDTH = 1280
+            /*640*/;
+    public static final int VIRTUAL_HEIGHT = 720
+            /*360*/;
 
 
     public static float DISTANCE_THRESHOLD = .5f;

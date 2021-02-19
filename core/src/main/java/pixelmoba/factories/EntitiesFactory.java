@@ -5,8 +5,8 @@ import com.artemis.World;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import pixelmoba.components.NetworkComponent;
-import pixelmoba.components.PositionComponent;
 import pixelmoba.components.TextureComponent;
+import pixelmoba.shared.components.PositionComponent;
 
 public class EntitiesFactory {
 
