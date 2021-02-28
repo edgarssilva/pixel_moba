@@ -2,7 +2,6 @@ package pixelmoba.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import pixelmoba.ClientConfiguration;
 import pixelmoba.GameClient;
 import pixelmoba.shared.Constants;
 
@@ -13,7 +12,7 @@ public class Lwjgl3Launcher {
 	}
 
 	private static Lwjgl3Application createApplication() {
-		return new Lwjgl3Application(new GameClient(ClientConfiguration.loadConfig()), getDefaultConfiguration());
+		return new Lwjgl3Application(new GameClient(), getDefaultConfiguration());
 	}
 
 	private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {

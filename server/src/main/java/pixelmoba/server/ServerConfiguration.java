@@ -35,8 +35,8 @@ public class ServerConfiguration {
     private static ServerConfiguration createConfig() {
         ServerConfiguration config = new ServerConfiguration();
         config.network = new Network(15000, 5455, 5477, "127.0.0.1");
-        config.tickRate = 1f / 30f; // 1s / 30 frames = 30fps
-        config.serverFPS = 1f / 120f;
+        config.tickRate = 1f / 60f; // 1s / 30 frames = 30fps
+        config.serverFPS = 1f / 20f;
 
         return config;
     }

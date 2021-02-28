@@ -6,8 +6,10 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import net.mostlyoriginal.api.SingletonPlugin;
+import pixelmoba.server.systems.ActionsSystem;
 import pixelmoba.server.systems.NetworkSystem;
 import pixelmoba.server.systems.RequestProcessor;
+import pixelmoba.server.systems.StateSystem;
 
 public class GameServer implements ApplicationListener {
     private World world;
@@ -28,7 +30,9 @@ public class GameServer implements ApplicationListener {
         world = new World(worldConfig
                 .dependsOn(SingletonPlugin.class)
                 .with(new NetworkSystem(strategy))
-                .with(new RequestProcessor())
+                .with(new RequestProcessor(strategy, config.getServerFPS()))
+                .with(new ActionsSystem())
+                .with(new StateSystem(strategy, config.getServerFPS()))
                 .build()
         );
 

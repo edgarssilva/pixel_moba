@@ -9,10 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import net.mostlyoriginal.api.SingletonPlugin;
 import pixelmoba.shared.Constants;
-import pixelmoba.systems.InputSystem;
-import pixelmoba.systems.NetworkSystem;
-import pixelmoba.systems.PositionSystem;
-import pixelmoba.systems.RenderSystem;
+import pixelmoba.systems.*;
 
 public class GameClient extends ApplicationAdapter {
 
@@ -20,23 +17,21 @@ public class GameClient extends ApplicationAdapter {
     private SpriteBatch batch;
     private OrthographicCamera camera;
 
-    private final ClientConfiguration clientConfig;
-
-    public GameClient(ClientConfiguration clientConfig) {
-        this.clientConfig = clientConfig;
-    }
+    public static ClientConfiguration clientConfig;
 
     @Override
     public void create() {
-        WorldConfigurationBuilder worldConfig = new WorldConfigurationBuilder();
+        clientConfig = ClientConfiguration.loadConfig();
 
         batch = new SpriteBatch();
         camera = new OrthographicCamera(Constants.VIRTUAL_WIDTH, Constants.VIRTUAL_HEIGHT);
         camera.position.set(Constants.VIRTUAL_WIDTH / 2f, Constants.VIRTUAL_HEIGHT / 2f, 0);
 
+        WorldConfigurationBuilder worldConfig = new WorldConfigurationBuilder();
         worldConfig
                 .dependsOn(SingletonPlugin.class)
-                .with(new NetworkSystem(clientConfig))
+                .with(new NetworkSystem())
+                .with(new ResponseProcessor(1 / 60f))
                 .with(new InputSystem(camera)) //Passive System
                 .with(new RenderSystem(camera, batch))
                 .with(new PositionSystem())

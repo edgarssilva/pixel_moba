@@ -3,36 +3,26 @@ package pixelmoba.systems;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
-import pixelmoba.components.NetworkComponent;
-import pixelmoba.components.singletons.NetworkStateSingleton;
+import pixelmoba.components.InputComponent;
+import pixelmoba.components.singletons.NetworkData;
+import pixelmoba.shared.components.NetworkComponent;
 import pixelmoba.shared.components.PositionComponent;
 
-@All(PositionComponent.class)
+@All({PositionComponent.class, InputComponent.class})
 public class PositionSystem extends IteratingSystem {
 
-    private NetworkStateSingleton netState;
+    protected ComponentMapper<PositionComponent> positionCompMap;
+    protected ComponentMapper<InputComponent> inputCompMap;
+    private ComponentMapper<NetworkComponent> netCompMap;
 
-    protected ComponentMapper<PositionComponent> positionComponentMap;
-    protected ComponentMapper<NetworkComponent> networkComponentMap;
-
+    private NetworkData networkData;
 
     @Override
     protected void process(int entityId) {
-        if (netState.handled || !networkComponentMap.has(entityId)) return;
+        if (!netCompMap.has(entityId)) return;
+        if (!networkData.pos.containsKey(entityId)) return;
 
-        NetworkComponent netComp = networkComponentMap.get(entityId);
-
-       /* for (Map.Entry<Long, Vector2> player : netState.playerPos.players.entrySet()) {
-            if (netComp.id != player.getKey()) continue;
-
-            PositionComponent posComp = positionComponentMap.get(entityId);
-
-            posComp.pos = player.getValue().cpy();
-        }*/
+        positionCompMap.get(entityId).pos.set(networkData.pos.get(netCompMap.get(entityId).networkID));
     }
 
-    @Override
-    protected void end() {
-        netState.handled = true;
-    }
 }

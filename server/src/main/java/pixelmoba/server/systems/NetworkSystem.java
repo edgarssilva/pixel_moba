@@ -2,17 +2,13 @@ package pixelmoba.server.systems;
 
 import net.mostlyoriginal.api.network.system.MarshalSystem;
 import pixelmoba.server.ServerStrategy;
-import pixelmoba.server.components.singletons.NetworksRequests;
-import pixelmoba.shared.network.IRequest;
+import pixelmoba.server.components.singletons.NetworkData;
 import pixelmoba.shared.network.NetworkDictionary;
-
-import java.util.Deque;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import pixelmoba.shared.network.Request;
 
 public class NetworkSystem extends MarshalSystem {
 
-    private NetworksRequests networksRequests;
-    private final Deque<NetworkJob> netQueue = new ConcurrentLinkedDeque<>();
+    private NetworkData networkData;
 
     public NetworkSystem(ServerStrategy strategy) {
         super(new NetworkDictionary(), strategy);
@@ -20,15 +16,23 @@ public class NetworkSystem extends MarshalSystem {
     }
 
     @Override
+    public void connected(int connectionId) {
+        super.connected(connectionId);
+    }
+
+    @Override
     public void received(int connectionId, Object object) {
-        netQueue.add(new NetworkJob(connectionId, object));
+        if (!(object instanceof Request)) return;
+        Request request = (Request) object;
+        request.sender = connectionId;
+        networkData.requests.add(request);
     }
 
     @Override
     protected void processSystem() {
         super.processSystem();
-        while (netQueue.peek() != null) netQueue.poll().process();
     }
+
 
     @Override
     public void disconnected(int connectionId) {
@@ -40,19 +44,4 @@ public class NetworkSystem extends MarshalSystem {
         stop();
     }
 
-    final class NetworkJob {
-
-        final int connectionId;
-        final Object receivedObject;
-
-        NetworkJob(int connectionId, Object receivedObject) {
-            this.connectionId = connectionId;
-            this.receivedObject = receivedObject;
-        }
-
-        void process() {
-            if (receivedObject instanceof IRequest)
-                networksRequests.queue.add((IRequest) receivedObject);
-        }
-    }
 }
