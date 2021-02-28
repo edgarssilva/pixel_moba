@@ -37,10 +37,8 @@ public class ClientConfiguration {
     private static ClientConfiguration createConfig() {
         ClientConfiguration config = new ClientConfiguration();
         config.network = new Network(15000, 5455, 5477, "127.0.0.1");
-
         config.keysBindings = new ArrayMap<>();
         config.keysBindings.ordered = false;
-        config.keysBindings.put(Input.Keys.S, Constants.ACTIONS.BASIC_1);
         config.keysBindings.put(Input.Keys.Q, Constants.ACTIONS.BASIC_1);
         config.keysBindings.put(Input.Keys.W, Constants.ACTIONS.BASIC_2);
         config.keysBindings.put(Input.Keys.E, Constants.ACTIONS.BASIC_3);

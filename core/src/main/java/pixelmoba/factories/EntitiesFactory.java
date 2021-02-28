@@ -11,12 +11,14 @@ import pixelmoba.shared.components.PositionComponent;
 
 public class EntitiesFactory {
 
-    public static void createNetworkPlayer(World world, int id, Vector2 pos) {
+
+    public static int createNetworkPlayer(World world, int id, Vector2 pos, boolean owner) {
         int player = world.create();
         EntityEdit playerEdit = world.edit(player);
         playerEdit.create((NetworkComponent.class)).networkID = id;
-        playerEdit.create(PositionComponent.class).pos = pos.cpy();
+        playerEdit.create(PositionComponent.class).pos = pos;
         playerEdit.create(TextureComponent.class).texture = new Texture("./dummy.png");
-        playerEdit.create(InputComponent.class);
+        if (owner) playerEdit.create(InputComponent.class);
+        return player;
     }
 }

@@ -23,16 +23,16 @@ public class ActionsSystem extends IteratingSystem {
             Constants.ACTIONS action = actionComp.actions.poll();
             switch (action) {
                 case BASIC_1:
-                    posComp.pos.x += -50 * Gdx.graphics.getDeltaTime();
+                    posComp.pos.x += -100 * Gdx.graphics.getDeltaTime();
                     break;
                 case BASIC_2:
-                    posComp.pos.y += 50 * Gdx.graphics.getDeltaTime();
+                    posComp.pos.y += 100 * Gdx.graphics.getDeltaTime();
                     break;
                 case BASIC_3:
-                    posComp.pos.x += 50 * Gdx.graphics.getDeltaTime();
+                    posComp.pos.x += 100 * Gdx.graphics.getDeltaTime();
                     break;
                 case Ultimate:
-                    posComp.pos.y += -50 * Gdx.graphics.getDeltaTime();
+                    posComp.pos.y += -100 * Gdx.graphics.getDeltaTime();
                     break;
             }
         }

@@ -3,4 +3,5 @@ eclipse.project.name = appName + '-core'
 
 dependencies {
 	api project(':shared')
+	api "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:2.5.0"
 }

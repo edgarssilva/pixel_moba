@@ -12,7 +12,6 @@ public class ResponseProcessor extends IntervalSystem {
     private NetworkData networkData;
 
     //Systems
-
     public ResponseProcessor(float interval) {
         super(Aspect.all(), interval);
     }
@@ -27,10 +26,25 @@ public class ResponseProcessor extends IntervalSystem {
     }
 
     private void processConnectionResponse(ConnectionResponse response) {
-        EntitiesFactory.createNetworkPlayer(world, response.networkId, response.pos);
+        networkData.playerID =
+                EntitiesFactory.createNetworkPlayer(world, response.networkId, response.pos, true);
+        networkData.idMap.put(response.networkId, networkData.playerID);
     }
 
     private void processStateResponse(StateResponse response) {
-        networkData.pos = response.playersPos;
+        networkData.players.putAll(response.players);
+        for (int id : response.players.keySet())
+            if (!networkData.idMap.containsKey(id)) {
+                StateResponse.PlayerState playerState = response.players.get(id);
+                networkData.idMap.put(id, EntitiesFactory.createNetworkPlayer(
+                        world,
+                        id,
+                        playerState.pos.cpy(),
+                        false
+                ));
+            }
+
+
+        /*networkData.players.remove(networkData.playerID);*/
     }
 }

@@ -3,16 +3,15 @@ package pixelmoba.systems;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.All;
 import com.artemis.systems.IteratingSystem;
-import pixelmoba.components.InputComponent;
 import pixelmoba.components.singletons.NetworkData;
 import pixelmoba.shared.components.NetworkComponent;
 import pixelmoba.shared.components.PositionComponent;
+import pixelmoba.shared.network.responses.StateResponse;
 
-@All({PositionComponent.class, InputComponent.class})
+@All({PositionComponent.class})
 public class PositionSystem extends IteratingSystem {
 
     protected ComponentMapper<PositionComponent> positionCompMap;
-    protected ComponentMapper<InputComponent> inputCompMap;
     private ComponentMapper<NetworkComponent> netCompMap;
 
     private NetworkData networkData;
@@ -20,9 +19,11 @@ public class PositionSystem extends IteratingSystem {
     @Override
     protected void process(int entityId) {
         if (!netCompMap.has(entityId)) return;
-        if (!networkData.pos.containsKey(entityId)) return;
+        if (!networkData.players.containsKey(entityId)) return;
+        StateResponse.PlayerState state = networkData.players.get(networkData.idMap.get(entityId));
 
-        positionCompMap.get(entityId).pos.set(networkData.pos.get(netCompMap.get(entityId).networkID));
+        PositionComponent posComp = positionCompMap.get(entityId);
+        posComp.pos.set(state.pos);
     }
 
 }

@@ -18,6 +18,7 @@ public class NetworkDictionary extends MarshalDictionary {
 
                 ConnectionResponse.class,
                 StateResponse.class,
+                StateResponse.PlayerState.class,
 
                 int[].class,
                 Vector2.class,

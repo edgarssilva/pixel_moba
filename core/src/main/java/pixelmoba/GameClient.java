@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import net.mostlyoriginal.api.SingletonPlugin;
+import net.mostlyoriginal.plugin.ProfilerPlugin;
 import pixelmoba.shared.Constants;
 import pixelmoba.systems.*;
 
@@ -30,6 +31,7 @@ public class GameClient extends ApplicationAdapter {
         WorldConfigurationBuilder worldConfig = new WorldConfigurationBuilder();
         worldConfig
                 .dependsOn(SingletonPlugin.class)
+                .dependsOn(ProfilerPlugin.class)
                 .with(new NetworkSystem())
                 .with(new ResponseProcessor(1 / 60f))
                 .with(new InputSystem(camera)) //Passive System
